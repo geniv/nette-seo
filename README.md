@@ -1,0 +1,2 @@
+# nette-seo
+Seo component
