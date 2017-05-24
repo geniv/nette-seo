@@ -47,8 +47,12 @@ class LatteDescriptionFilter
     public function __invoke(FilterInfo $info, $string)
     {
         $presenter = $this->application->getPresenter();
-//        $this->model->insertSeoDescription($presenter, $string);
 
-        return 'TODO description';
+        $parameters = $presenter->getParameters();
+        $ident = 'seo-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
+
+        $translate = $this->translator->createTranslate($ident, $string ?: $ident);
+
+        return $translate;
     }
 }
