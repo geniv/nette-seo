@@ -39,15 +39,10 @@ class Extension extends CompilerExtension
 //        }
 
         // pripojeni filru na vkladani slugu
-        $latteFactoryService = $builder->getByType(ILatteFactory::class) ?: 'nette.latteFactory';
-        if ($builder->hasDefinition($latteFactoryService)) {
-            $latte = $builder->getDefinition($latteFactoryService);
+        $latte = $builder->getDefinition('nette.latteFactory');
 
-            // pripojeni pro seo rozsireni
-//            if (isset($config['parameters']['seo']) && $config['parameters']['seo']) {
-            $latte->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')]);
-            $latte->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
-//            }
-        }
+        // pripojeni pro seo rozsireni
+        $latte->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')]);
+        $latte->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
     }
 }
