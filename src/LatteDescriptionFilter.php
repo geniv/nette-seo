@@ -49,7 +49,7 @@ class LatteDescriptionFilter
         $presenter = $this->application->getPresenter();
 
         $parameters = $presenter->getParameters();
-        $ident = 'seo-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
+        $ident = 'seo-description-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
 
         $translate = $this->translator->createTranslate($ident, $string ?: $ident);
 
