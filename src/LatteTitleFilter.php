@@ -47,8 +47,12 @@ class LatteTitleFilter
     public function __invoke(FilterInfo $info, $string)
     {
         $presenter = $this->application->getPresenter();
-//        $this->model->insertSeoTitle($presenter, $string);
 
-        return 'TODO title';
+        $parameters = $presenter->getParameters();
+        $ident = 'seo-title-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
+
+        $translate = $this->translator->createTranslate($ident, $string ?: $ident);
+
+        return $translate;
     }
 }
