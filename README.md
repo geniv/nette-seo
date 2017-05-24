@@ -1,4 +1,6 @@
 # nette-seo
+======
+
 Seo component
 
 
