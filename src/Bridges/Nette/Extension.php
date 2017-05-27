@@ -24,10 +24,8 @@ class Extension extends CompilerExtension
     public function loadConfiguration()
     {
         $builder = $this->getContainerBuilder();
-        $config = $this->getConfig();
+        //$config = $this->getConfig();
 
-        // pripojeni pro seo rozsireni
-//        if (isset($config['parameters']['seo']) && $config['parameters']['seo']) {
         // nacteni filteru
         $builder->addDefinition($this->prefix('filter.title'))
             ->setClass(LatteTitleFilter::class)
@@ -36,7 +34,6 @@ class Extension extends CompilerExtension
         $builder->addDefinition($this->prefix('filter.description'))
             ->setClass(LatteDescriptionFilter::class)
             ->setInject(false);
-//        }
 
         // pripojeni filru na vkladani slugu
         $latte = $builder->getDefinition('nette.latteFactory');
