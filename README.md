@@ -24,7 +24,7 @@ Include in application
 neon configure extension:
 ```neon
 extensions:
-    seo: Seo\Bridges\Nette\Extension
+    - Seo\Bridges\Nette\Extension
 ```
 
 usage @layout.latte:
