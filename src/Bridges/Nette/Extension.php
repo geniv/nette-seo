@@ -28,12 +28,10 @@ class Extension extends CompilerExtension
 
         // nacteni filteru
         $builder->addDefinition($this->prefix('filter.title'))
-            ->setClass(LatteTitleFilter::class)
-            ->setInject(false);
+            ->setClass(LatteTitleFilter::class);
 
         $builder->addDefinition($this->prefix('filter.description'))
-            ->setClass(LatteDescriptionFilter::class)
-            ->setInject(false);
+            ->setClass(LatteDescriptionFilter::class);
 
         // pripojeni filru na vkladani slugu
         $builder->getDefinition('latte.latteFactory')
