@@ -1,15 +1,34 @@
-# nette-seo
+Seo title and description
 ======
 
-Seo component
+Installation
+------------
 
+```sh
+$ composer require geniv/nette-seo
+```
+or
+```json
+"geniv/nette-seo": ">=1.0"
+```
 
+internal dependency:
+```json
+"nette/nette": ">=2.4.0",
+"geniv/nette-translator": ">=1.0"
+```
 
+Include in application
+----------------------
 
+neon configure extension:
+```neon
 extensions:
-	seo: Seo\Bridges\Nette\Extension
+    - Seo\Bridges\Nette\Extension
+```
 
-
-<title>{include title|seoTitle} | {control config:text 'web-title'}</title>
-
-<meta name="description" content="{ifset description}{include description|seoDescription}{/ifset} | {control config:text 'web-description'}">
+usage @layout.latte:
+```latte
+<title>{ifset title}{include title|seoTitle} | {/ifset}default title</title>
+<meta name="description" content="{ifset description}{include description|seoDescription} | {/ifset}default description">
+```

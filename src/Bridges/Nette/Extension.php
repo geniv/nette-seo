@@ -24,25 +24,26 @@ class Extension extends CompilerExtension
     public function loadConfiguration()
     {
         $builder = $this->getContainerBuilder();
-        $config = $this->getConfig();
 
-        // pripojeni pro seo rozsireni
-//        if (isset($config['parameters']['seo']) && $config['parameters']['seo']) {
-        // nacteni filteru
+        // definice filteru
         $builder->addDefinition($this->prefix('filter.title'))
-            ->setClass(LatteTitleFilter::class)
-            ->setInject(false);
+            ->setClass(LatteTitleFilter::class);
 
         $builder->addDefinition($this->prefix('filter.description'))
-            ->setClass(LatteDescriptionFilter::class)
-            ->setInject(false);
-//        }
+            ->setClass(LatteDescriptionFilter::class);
+    }
 
-        // pripojeni filru na vkladani slugu
-        $latte = $builder->getDefinition('nette.latteFactory');
 
-        // pripojeni pro seo rozsireni
-        $latte->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')]);
-        $latte->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
+    /**
+     * Before Compile.
+     */
+    public function beforeCompile()
+    {
+        $builder = $this->getContainerBuilder();
+
+        // pripojeni filru do latte
+        $builder->getDefinition('latte.latteFactory')
+            ->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')])
+            ->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
     }
 }
