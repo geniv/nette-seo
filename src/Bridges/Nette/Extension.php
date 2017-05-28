@@ -36,10 +36,8 @@ class Extension extends CompilerExtension
             ->setInject(false);
 
         // pripojeni filru na vkladani slugu
-        $latte = $builder->getDefinition('nette.latteFactory');
-
-        // pripojeni pro seo rozsireni
-        $latte->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')]);
-        $latte->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
+        $builder->getDefinition('latte.latteFactory')
+            ->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')])
+            ->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
     }
 }
