@@ -24,16 +24,24 @@ class Extension extends CompilerExtension
     public function loadConfiguration()
     {
         $builder = $this->getContainerBuilder();
-        //$config = $this->getConfig();
 
-        // nacteni filteru
+        // definice filteru
         $builder->addDefinition($this->prefix('filter.title'))
             ->setClass(LatteTitleFilter::class);
 
         $builder->addDefinition($this->prefix('filter.description'))
             ->setClass(LatteDescriptionFilter::class);
+    }
 
-        // pripojeni filru na vkladani slugu
+
+    /**
+     * Before Compile.
+     */
+    public function beforeCompile()
+    {
+        $builder = $this->getContainerBuilder();
+
+        // pripojeni filru do latte
         $builder->getDefinition('latte.latteFactory')
             ->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')])
             ->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
