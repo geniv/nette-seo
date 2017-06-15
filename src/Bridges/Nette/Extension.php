@@ -2,8 +2,8 @@
 
 namespace Seo\Bridges\Nette;
 
-use Seo\LatteDescriptionFilter;
-use Seo\LatteTitleFilter;
+use Seo\FilterDescription;
+use Seo\FilterTitle;
 use Nette\DI\CompilerExtension;
 
 
@@ -27,10 +27,10 @@ class Extension extends CompilerExtension
 
         // definice filteru
         $builder->addDefinition($this->prefix('filter.title'))
-            ->setClass(LatteTitleFilter::class);
+            ->setClass(FilterTitle::class);
 
         $builder->addDefinition($this->prefix('filter.description'))
-            ->setClass(LatteDescriptionFilter::class);
+            ->setClass(FilterDescription::class);
     }
 
 

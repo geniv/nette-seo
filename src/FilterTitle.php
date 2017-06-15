@@ -9,12 +9,12 @@ use Translator\Translator;
 
 
 /**
- * Class LatteDescriptionFilter
+ * Class FilterTitle
  *
  * @author  geniv
  * @package Seo
  */
-class LatteDescriptionFilter
+class FilterTitle
 {
     use SmartObject;
 
@@ -25,7 +25,7 @@ class LatteDescriptionFilter
 
 
     /**
-     * LatteDescriptionFilter constructor.
+     * FilterTitle constructor.
      *
      * @param Translator  $translator
      * @param Application $application
@@ -49,7 +49,7 @@ class LatteDescriptionFilter
         $presenter = $this->application->getPresenter();
 
         $parameters = $presenter->getParameters();
-        $ident = 'seo-description-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
+        $ident = 'seo-title-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
 
         $translate = $this->translator->createTranslate($ident, $string ?: $ident);
 
