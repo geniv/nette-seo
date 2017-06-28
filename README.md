@@ -1,5 +1,5 @@
 Seo title and description
-======
+=========================
 
 Installation
 ------------
@@ -15,7 +15,7 @@ or
 internal dependency:
 ```json
 "nette/nette": ">=2.4.0",
-"geniv/nette-translator": ">=1.0.0"
+"geniv/nette-translator": ">=1.0"
 ```
 
 Include in application
