@@ -10,8 +10,6 @@ use Nette\DI\CompilerExtension;
 /**
  * Class Extension
  *
- * nette extension pro seo jako rozsireni
- *
  * @author  geniv
  * @package Seo\Bridges\Nette
  */
