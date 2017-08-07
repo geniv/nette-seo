@@ -20,20 +20,16 @@ class FilterTitle
 
     /** @var Translator class */
     private $translator;
-    /** @var Application current application */
-    private $application;
 
 
     /**
      * FilterTitle constructor.
      *
-     * @param Translator  $translator
-     * @param Application $application
+     * @param Translator $translator
      */
-    public function __construct(Translator $translator, Application $application)
+    public function __construct(Translator $translator)
     {
         $this->translator = $translator;
-        $this->application = $application;
     }
 
 
@@ -46,13 +42,6 @@ class FilterTitle
      */
     public function __invoke(FilterInfo $info, $string)
     {
-        $presenter = $this->application->getPresenter();
-
-        $parameters = $presenter->getParameters();
-        $ident = 'seo-title-' . $presenter->getName() . '-' . $presenter->getAction() . (isset($parameters['id']) ? '-' . $parameters['id'] : '');
-
-        $translate = $this->translator->createTranslate($ident, $string ?: $ident);
-
-        return $translate;
+        return $this->translator->translate($string);
     }
 }

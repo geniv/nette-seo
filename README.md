@@ -1,6 +1,9 @@
 Seo title and description
 =========================
 
+#OBSOLETE - DEPRECATED
+description: block title and description are internal translate direct
+
 Installation
 ------------
 
@@ -32,4 +35,11 @@ usage @layout.latte:
 ```latte
 <title>{ifset title}{include title|seoTitle} | {/ifset}default title</title>
 <meta name="description" content="{ifset description}{include description|seoDescription} | {/ifset}default description">
+```
+
+###Warning:
+text ident in title and description is automatic translate!
+```latte
+{block title}homepage-title{/block}
+{block description}homepage-description{/block}
 ```
