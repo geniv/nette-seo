@@ -44,7 +44,7 @@ usage @layout.latte:
 <meta name="description" content="{ifset description}{include description|seoDescription} | {/ifset}default description">
 ```
 
-###Warning:
+### Warning:
 text ident in title and description is automatic translate!!!
 ```latte
 {block title}homepage-title{/block}
