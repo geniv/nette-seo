@@ -2,6 +2,7 @@
 
 namespace Seo\Bridges\Nette;
 
+use Seo\DibiSeo;
 use Seo\FilterDescription;
 use Seo\FilterTitle;
 use Nette\DI\CompilerExtension;
@@ -15,6 +16,11 @@ use Nette\DI\CompilerExtension;
  */
 class Extension extends CompilerExtension
 {
+    /** @var array default values */
+    private $defaults = [
+        'tablePrefix' => null,
+    ];
+
 
     /**
      * Load configuration.
@@ -22,6 +28,10 @@ class Extension extends CompilerExtension
     public function loadConfiguration()
     {
         $builder = $this->getContainerBuilder();
+        $config = $this->validateConfig($this->defaults);
+
+        $builder->addDefinition($this->prefix('default'))
+            ->setClass(DibiSeo::class, [$config]);
 
         // definice filteru
         $builder->addDefinition($this->prefix('filter.title'))

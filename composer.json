@@ -1,6 +1,6 @@
 {
   "name": "geniv/nette-seo",
-  "description": "Simple seo for Nette Framework",
+  "description": "Seo extension for Nette Framework",
   "keywords": [
     "nette",
     "seo",
@@ -16,7 +16,8 @@
   "require": {
     "php": ">=5.6.0",
     "nette/nette": ">=2.4.0",
-    "geniv/nette-translator": ">=1.0.0"
+    "dibi/dibi": ">=3.0.0",
+    "geniv/nette-locale": ">=1.0.0"
   },
   "autoload": {
     "classmap": [
