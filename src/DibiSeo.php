@@ -90,7 +90,7 @@ class DibiSeo
                 $this->connection->insert($this->tableSeo, $values + $array + ['added%sql' => 'NOW()'])->execute();
             } else {
                 // update
-                if ($array[$key[0]] != $item[$key[0]]) {
+                if (isset($array[$key[0]]) && !$item[$key[0]]) {
                     // update only different value
                     $this->connection->update($this->tableSeo, $array)->where(['id' => $item['id']])->execute();
                 }
