@@ -16,8 +16,10 @@ class Extension extends CompilerExtension
 {
     /** @var array default values */
     private $defaults = [
-        'tablePrefix' => null,
-        'autowired'   => null,
+        'tablePrefix'     => null,
+        'autowired'       => null,
+        'prefixSeparator' => null,
+        'suffixSeparator' => null,
     ];
 
 

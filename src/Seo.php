@@ -35,6 +35,8 @@ class Seo extends Control
     /** @var string table names */
     private $tableSeo, $tableSeoIdent;
 
+    private $separator;
+
 
     /**
      * Seo constructor.
@@ -54,6 +56,11 @@ class Seo extends Control
         // define table names
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
+
+        $this->separator = [
+            'prefix' => $parameters['prefixSeparator'],
+            'suffix' => $parameters['suffixSeparator'],
+        ];
     }
 
 
@@ -165,7 +172,7 @@ class Seo extends Control
             $cacheKey = $name . '-' . $idLocale . '-' . $idIdent . '-' . intval($idItem);
             $item = $this->cache->load($cacheKey);
             if ($item === null) {
-                $cursor = $this->connection->select('s.id, tab.id tid, lo_tab.id lotid, ' .
+                $cursor = $this->connection->select('s.id, tab.id tid, ' .
                     'IFNULL(lo_tab.title, tab.title) title, ' .
                     'IFNULL(lo_tab.description, tab.description) description')
                     ->from($this->tableSeoIdent)->as('s')
@@ -202,6 +209,15 @@ class Seo extends Control
             }
 
             $value = $item[$methodName];
+
+            // before separator
+            if (isset($this->separator['prefix'][$ident])) {
+                $value = $this->separator['prefix'][$ident] . $value;
+            }
+            // after separator
+            if (isset($this->separator['suffix'][$ident])) {
+                $value = $value . $this->separator['suffix'][$ident];
+            }
 
             // return value
             if ($value) {
