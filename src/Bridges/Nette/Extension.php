@@ -2,10 +2,8 @@
 
 namespace Seo\Bridges\Nette;
 
-use Seo\DibiSeo;
-use Seo\FilterDescription;
-use Seo\FilterTitle;
 use Nette\DI\CompilerExtension;
+use Seo\Seo;
 
 
 /**
@@ -19,6 +17,7 @@ class Extension extends CompilerExtension
     /** @var array default values */
     private $defaults = [
         'tablePrefix' => null,
+        'autowired'   => null,
     ];
 
 
@@ -30,28 +29,14 @@ class Extension extends CompilerExtension
         $builder = $this->getContainerBuilder();
         $config = $this->validateConfig($this->defaults);
 
+        // definition seo
         $builder->addDefinition($this->prefix('default'))
-            ->setClass(DibiSeo::class, [$config]);
+            ->setClass(Seo::class, [$config]);
 
-        // definice filteru
-        $builder->addDefinition($this->prefix('filter.title'))
-            ->setClass(FilterTitle::class);
-
-        $builder->addDefinition($this->prefix('filter.description'))
-            ->setClass(FilterDescription::class);
-    }
-
-
-    /**
-     * Before Compile.
-     */
-    public function beforeCompile()
-    {
-        $builder = $this->getContainerBuilder();
-
-        // pripojeni filru do latte
-        $builder->getDefinition('latte.latteFactory')
-            ->addSetup('addFilter', ['seoTitle', $this->prefix('@filter.title')])
-            ->addSetup('addFilter', ['seoDescription', $this->prefix('@filter.description')]);
-    }
+        // if define autowired then set value
+        if (isset($config['autowired'])) {
+            $builder->getDefinition($this->prefix('default'))
+                ->setAutowired($config['autowired']);
+        }
+    }//TODO v pripade zajmu udelat i do ladenky panel ktery bude zobrazovat aktualni pouziti seo title/description
 }

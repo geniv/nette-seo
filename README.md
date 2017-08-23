@@ -30,6 +30,7 @@ neon configure:
 # seo
 seo:
     tablePrefix: %tablePrefix%
+#   autowired: false    # default null, false => disable autowiring (in case multiple linked extension) | self    
 ```
 
 neon configure extension:
@@ -38,10 +39,20 @@ extensions:
     seo: Seo\Bridges\Nette\Extension
 ```
 
+usage:
+```php
+use Seo\Seo;
+
+protected function createComponentSeo(Seo $seo)
+{
+    return $seo;
+}
+```
+
 usage @layout.latte:
 ```latte
-<title>{ifset title}{include title|seoTitle} | {/ifset}default title</title>
-<meta name="description" content="{ifset description}{include description|seoDescription} | {/ifset}default description">
+<title>{ifset title}{include title} - {else}{control seo:title}{/ifset}{if $presenter['seo']->isTitle()} - {/if}{control seo:title 'default-latte'}</title>
+<meta name="description" content="{ifset description}{include description}{else}{control seo:description}{/ifset}{if $presenter['seo']->isDescription()} - {/if}{control seo:description 'default-latte'}">
 ```
 
 ### Warning:
@@ -50,3 +61,4 @@ text ident in title and description is automatic translate!!!
 {block title}homepage-title{/block}
 {block description}homepage-description{/block}
 ```
+in case usage block: `{block title}` or `{block description}` content this block does not save to database!!!
