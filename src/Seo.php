@@ -162,9 +162,9 @@ class Seo extends Control
                 'tab.id_item' => $idItem,
             ];
 
-            $cacheKey = $methodName . '-' . $idLocale . '-' . $idIdent . '-' . $idItem;
-            $value = $this->cache->load($cacheKey);
-            if ($value === null) {
+            $cacheKey = $name . '-' . $idLocale . '-' . $idIdent . '-' . intval($idItem);
+            $item = $this->cache->load($cacheKey);
+            if ($item === null) {
                 $cursor = $this->connection->select('s.id, tab.id tid, lo_tab.id lotid, ' .
                     'IFNULL(lo_tab.title, tab.title) title, ' .
                     'IFNULL(lo_tab.description, tab.description) description')
@@ -176,32 +176,32 @@ class Seo extends Control
 //                $cursor->test();
                 $item = $cursor->fetch();
 
-                // insert null locale item
-                if (!$item->tid) {  //&& !$item->tid
-                    $this->connection->insert($this->tableSeo, [
-                        'id_locale' => null,
-                        'id_ident'  => $idIdent,
-                        'id_item'   => $idItem,
-                    ])->execute();
-                }
-
-                // catch is* method
-                switch ($name) {
-                    case 'isTitle':
-                        return $item['title'];
-                        break;
-
-                    case 'isDescription':
-                        return $item['description'];
-                        break;
-                }
-
-                $value = $item[$methodName];
-
-                $this->cache->save($cacheKey, $value, [
+                $this->cache->save($cacheKey, $item, [
                     Cache::TAGS => ['seo-cache'],
                 ]);
             }
+
+            // insert null locale item
+            if (!$item['tid']) {
+                $this->connection->insert($this->tableSeo, [
+                    'id_locale' => null,
+                    'id_ident'  => $idIdent,
+                    'id_item'   => $idItem,
+                ])->execute();
+            }
+
+            // catch is* method
+            switch ($name) {
+                case 'isTitle':
+                    return $item['title'];
+                    break;
+
+                case 'isDescription':
+                    return $item['description'];
+                    break;
+            }
+
+            $value = $item[$methodName];
 
             // return value
             if ($value) {
