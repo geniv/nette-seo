@@ -211,11 +211,11 @@ class Seo extends Control
             $value = $item[$methodName];
 
             // before separator
-            if (isset($this->separator['prefix'][$ident])) {
+            if (isset($this->separator['prefix'][$ident]) && $value) {
                 $value = $this->separator['prefix'][$ident] . $value;
             }
             // after separator
-            if (isset($this->separator['suffix'][$ident])) {
+            if (isset($this->separator['suffix'][$ident]) && $value) {
                 $value = $value . $this->separator['suffix'][$ident];
             }
 
