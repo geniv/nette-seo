@@ -31,6 +31,10 @@ neon configure:
 seo:
     tablePrefix: %tablePrefix%
 #   autowired: false    # default null, false => disable autowiring (in case multiple linked extension) | self    
+    prefixSeparator:
+        default-latte: ' - '
+#    suffixSeparator:
+#        default-latte: ' - '
 ```
 
 neon configure extension:
@@ -53,6 +57,11 @@ usage @layout.latte:
 ```latte
 <title>{ifset title}{include title} - {else}{control seo:title}{/ifset}{if $presenter['seo']->isTitle()} - {/if}{control seo:title 'default-latte'}</title>
 <meta name="description" content="{ifset description}{include description}{else}{control seo:description}{/ifset}{if $presenter['seo']->isDescription()} - {/if}{control seo:description 'default-latte'}">
+```
+or without separator (separator configure in neon, via: `prefixSeparator`, `suffixSeparator`):
+```latte
+<title>{ifset title}{include title}{else}{control seo:title}{/ifset}{control seo:title 'default-latte'}</title>
+<meta name="description" content="{ifset description}{include description}{else}{control seo:description}{/ifset}{control seo:description 'default-latte'}">
 ```
 
 ### Warning:
