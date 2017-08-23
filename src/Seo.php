@@ -162,43 +162,53 @@ class Seo extends Control
                 'tab.id_item' => $idItem,
             ];
 
-            $cursor = $this->connection->select('s.id, tab.id tid, lo_tab.id lotid, ' .
-                'IFNULL(lo_tab.title, tab.title) title, ' .
-                'IFNULL(lo_tab.description, tab.description) description')
-                ->from($this->tableSeoIdent)->as('s')
-                ->leftJoin($this->tableSeo)->as('tab')->on('tab.id_ident=s.id')->and('tab.id_locale IS NULL')
-                ->leftJoin($this->tableSeo)->as('lo_tab')->on('lo_tab.id_ident=s.id')->and('lo_tab.id_locale=%i', $idLocale)
-                ->where($values);
+            $cacheKey = $methodName . '-' . $idLocale . '-' . $idIdent . '-' . $idItem;
+            $value = $this->cache->load($cacheKey);
+            if ($value === null) {
+                $cursor = $this->connection->select('s.id, tab.id tid, lo_tab.id lotid, ' .
+                    'IFNULL(lo_tab.title, tab.title) title, ' .
+                    'IFNULL(lo_tab.description, tab.description) description')
+                    ->from($this->tableSeoIdent)->as('s')
+                    ->leftJoin($this->tableSeo)->as('tab')->on('tab.id_ident=s.id')->and('tab.id_locale IS NULL')
+                    ->leftJoin($this->tableSeo)->as('lo_tab')->on('lo_tab.id_ident=s.id')->and('lo_tab.id_locale=%i', $idLocale)
+                    ->where($values);
 
-//            $cursor->test();
-            $item = $cursor->fetch();
+//                $cursor->test();
+                $item = $cursor->fetch();
 
-            // insert null locale item
-            if (!$item->tid) {  //&& !$item->tid
-                $this->connection->insert($this->tableSeo, [
-                    'id_locale' => null,
-                    'id_ident'  => $idIdent,
-                    'id_item'   => $idItem,
-                ])->execute();
-            }
+                // insert null locale item
+                if (!$item->tid) {  //&& !$item->tid
+                    $this->connection->insert($this->tableSeo, [
+                        'id_locale' => null,
+                        'id_ident'  => $idIdent,
+                        'id_item'   => $idItem,
+                    ])->execute();
+                }
 
-            // catch is* method
-            switch ($name) {
-                case 'isTitle':
-                    return $item['title'];
-                    break;
+                // catch is* method
+                switch ($name) {
+                    case 'isTitle':
+                        return $item['title'];
+                        break;
 
-                case 'isDescription':
-                    return $item['description'];
-                    break;
+                    case 'isDescription':
+                        return $item['description'];
+                        break;
+                }
+
+                $value = $item[$methodName];
+
+                $this->cache->save($cacheKey, $value, [
+                    Cache::TAGS => ['seo-cache'],
+                ]);
             }
 
             // return value
-            if ($item) {
+            if ($value) {
                 if ($return) {
-                    return $item[$methodName];
+                    return $value;
                 } else {
-                    echo $item[$methodName];
+                    echo $value;
                 }
             }
         }
