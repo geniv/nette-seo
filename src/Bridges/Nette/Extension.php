@@ -16,10 +16,8 @@ class Extension extends CompilerExtension
 {
     /** @var array default values */
     private $defaults = [
-        'tablePrefix'     => null,
-        'autowired'       => null,
-        'prefixSeparator' => null,
-        'suffixSeparator' => null,
+        'tablePrefix' => null,
+        'autowired'   => null,
     ];
 
 
@@ -40,5 +38,8 @@ class Extension extends CompilerExtension
             $builder->getDefinition($this->prefix('default'))
                 ->setAutowired($config['autowired']);
         }
-    }//TODO v pripade zajmu udelat i do ladenky panel ktery bude zobrazovat aktualni pouziti seo title/description
+    }
+
+
+    //TODO v pripade zajmu udelat i do ladenky panel ktery bude zobrazovat aktualni pouziti seo title/description
 }
