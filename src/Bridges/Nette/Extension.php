@@ -31,7 +31,7 @@ class Extension extends CompilerExtension
 
         // definition seo
         $builder->addDefinition($this->prefix('default'))
-            ->setClass(Seo::class, [$config]);
+            ->setFactory(Seo::class, [$config]);
 
         // if define autowired then set value
         if (isset($config['autowired'])) {
