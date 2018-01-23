@@ -4,7 +4,7 @@ namespace Seo;
 
 use dibi;
 use Dibi\Connection;
-use Locale\Locale;
+use Locale\ILocale;
 use Nette\Application\Application;
 use Nette\Application\UI\Control;
 use Nette\Caching\Cache;
@@ -28,7 +28,7 @@ class Seo extends Control
     private $cache;
     /** @var Connection database connection from DI */
     private $connection;
-    /** @var Locale */
+    /** @var ILocale */
     private $locale;
     /** @var Application */
     private $application;
@@ -41,11 +41,11 @@ class Seo extends Control
      *
      * @param array       $parameters
      * @param Connection  $connection
-     * @param Locale      $locale
+     * @param ILocale     $locale
      * @param IStorage    $storage
      * @param Application $application
      */
-    public function __construct(array $parameters, Connection $connection, Locale $locale, IStorage $storage, Application $application)
+    public function __construct(array $parameters, Connection $connection, ILocale $locale, IStorage $storage, Application $application)
     {
         $this->connection = $connection;
         $this->locale = $locale;
