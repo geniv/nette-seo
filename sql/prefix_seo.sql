@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.4.1deb2ubuntu2
--- http://www.phpmyadmin.net
+-- version 4.6.6deb4
+-- https://www.phpmyadmin.net/
 --
--- Počítač: localhost
--- Vytvořeno: Stř 23. srp 2017, 17:16
--- Verze serveru: 10.0.31-MariaDB-0ubuntu0.16.04.2
--- Verze PHP: 7.0.22-0ubuntu0.16.04.1
+-- Počítač: localhost:3306
+-- Vytvořeno: Sob 27. led 2018, 20:28
+-- Verze serveru: 10.1.26-MariaDB-0+deb9u1
+-- Verze PHP: 7.0.27-0+deb9u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -27,10 +27,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `prefix_seo` (
-  `id` int(11) NOT NULL,
-  `id_locale` int(11) DEFAULT NULL COMMENT 'vazba na jazyk',
-  `id_ident` int(11) NOT NULL COMMENT 'vazba na ident',
-  `id_item` int(11) DEFAULT NULL COMMENT 'id polozky',
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `id_locale` bigint(20) UNSIGNED DEFAULT NULL COMMENT 'vazba na jazyk',
+  `id_ident` bigint(20) UNSIGNED NOT NULL COMMENT 'vazba na ident',
+  `id_item` bigint(20) DEFAULT NULL COMMENT 'id polozky',
   `title` varchar(255) DEFAULT NULL COMMENT 'titulek',
   `description` varchar(255) DEFAULT NULL COMMENT 'popisek'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='seo';
@@ -55,7 +55,7 @@ ALTER TABLE `prefix_seo`
 -- AUTO_INCREMENT pro tabulku `prefix_seo`
 --
 ALTER TABLE `prefix_seo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 --
 -- Omezení pro exportované tabulky
 --
