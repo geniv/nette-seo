@@ -63,8 +63,9 @@ class Seo extends Control
      * @param $presenter
      * @param $action
      * @return mixed
+     * @throws \Dibi\Exception
      */
-    private function getIdent($presenter, $action)
+    private function getIdIdentByPresenterAction($presenter, $action)
     {
         $cacheKey = 'getIdSeo-' . $presenter . '-' . $action;
         $id = $this->cache->load($cacheKey);
@@ -94,8 +95,9 @@ class Seo extends Control
      *
      * @param $ident
      * @return mixed
+     * @throws \Dibi\Exception
      */
-    private function getIdentByIdent($ident)
+    private function getIdIdentByIdent($ident)
     {
         $cacheKey = 'getIdentByIdent-' . $ident;
         $id = $this->cache->load($cacheKey);
@@ -134,6 +136,7 @@ class Seo extends Control
      * @param $name
      * @param $args
      * @return mixed
+     * @throws \Dibi\Exception
      */
     public function __call($name, $args)
     {
@@ -150,7 +153,7 @@ class Seo extends Control
             $return = (isset($args[1]) ? $args[1] : false); // echo / return
 
             // get $idIdent from ident mode or presenter-action mode
-            $idIdent = ($ident ? $this->getIdentByIdent($ident) : $this->getIdent($presenterName, $presenterAction));
+            $idIdent = ($ident ? $this->getIdIdentByIdent($ident) : $this->getIdIdentByPresenterAction($presenterName, $presenterAction));
 
             // ignore $idItem in case $ident mode
             if ($idIdent && $idItem) {
