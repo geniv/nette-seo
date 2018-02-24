@@ -143,7 +143,7 @@ class Seo extends Control
         if (!in_array($name, ['onAnchor'])) {   // nesmi zachytavat definovane metody
             $presenter = $this->application->getPresenter();
 
-            $idLocale = $this->locale->getIdByCode($presenter->getParameter('locale'));
+            $idLocale = $this->locale->getIdByCode($presenter->getParameter('locale') ?: '');
             $presenterName = $presenter->getName();
             $presenterAction = $presenter->action;
             $idItem = $presenter->getParameter('id');
