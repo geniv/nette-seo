@@ -30,7 +30,7 @@ neon configure:
 # seo
 seo:
     tablePrefix: %tablePrefix%
-#   autowired: false    # default null, false => disable autowiring (in case multiple linked extension) | self
+#   autowired: true
 ```
 
 neon configure extension:

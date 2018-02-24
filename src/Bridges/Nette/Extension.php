@@ -17,7 +17,7 @@ class Extension extends CompilerExtension
     /** @var array default values */
     private $defaults = [
         'tablePrefix' => null,
-        'autowired'   => null,
+        'autowired'   => true,
     ];
 
 
@@ -31,13 +31,8 @@ class Extension extends CompilerExtension
 
         // definition seo
         $builder->addDefinition($this->prefix('default'))
-            ->setFactory(Seo::class, [$config]);
-
-        // if define autowired then set value
-        if (isset($config['autowired'])) {
-            $builder->getDefinition($this->prefix('default'))
-                ->setAutowired($config['autowired']);
-        }
+            ->setFactory(Seo::class, [$config])
+            ->setAutowired($config['autowired']);
     }
 
 
