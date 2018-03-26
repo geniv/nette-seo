@@ -64,10 +64,12 @@ class Seo extends Control
      * @param $action
      * @return mixed
      * @throws \Dibi\Exception
+     * @throws \Exception
+     * @throws \Throwable
      */
     private function getIdIdentByPresenterAction($presenter, $action)
     {
-        $cacheKey = 'getIdSeo-' . $presenter . '-' . $action;
+        $cacheKey = 'getIdIdentByPresenterAction-' . $presenter . '-' . $action;
         $id = $this->cache->load($cacheKey);
         if ($id === null) {
             $id = $this->connection->select('id')
@@ -96,21 +98,23 @@ class Seo extends Control
      * @param $ident
      * @return mixed
      * @throws \Dibi\Exception
+     * @throws \Exception
+     * @throws \Throwable
      */
     private function getIdIdentByIdent($ident)
     {
-        $cacheKey = 'getIdentByIdent-' . $ident;
+        $cacheKey = 'getIdIdentByIdent-' . $ident;
         $id = $this->cache->load($cacheKey);
         if ($id === null) {
+            $values = ['ident' => $ident];
             $id = $this->connection->select('id')
                 ->from($this->tableSeoIdent)
-                ->where(['ident' => $ident])
+                ->where($values)
                 ->fetchSingle();
 
+            // insert new identification if not exist
             if (!$id) {
-                $id = $this->connection->insert($this->tableSeoIdent, [
-                    'ident' => $ident,
-                ])->execute(Dibi::IDENTIFIER);
+                $id = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
             }
 
             $this->cache->save($cacheKey, $id, [
@@ -124,19 +128,12 @@ class Seo extends Control
     /**
      * Overloading is and get method.
      *
-     * LATTE:
-     * {control seo:title}
-     * {control seo:description}
-     * {control seo:title 'default-latte'}
-     * {control seo:description 'default-latte'}
-     * return usage: {control seo:description 'default-latte', true}
-     * {if $presenter['seo']->isTitle()}
-     * {if $presenter['seo']->isDescription()}
-     *
      * @param $name
      * @param $args
      * @return mixed
      * @throws \Dibi\Exception
+     * @throws \Exception
+     * @throws \Throwable
      */
     public function __call($name, $args)
     {
@@ -160,22 +157,17 @@ class Seo extends Control
                 $idItem = null;
             }
 
-            $values = [
-                's.id'        => $idIdent,
-                'tab.id_item' => $idItem,
-            ];
-
             $cacheKey = $name . '-' . $idLocale . '-' . $idIdent . '-' . intval($idItem);
             $item = $this->cache->load($cacheKey);
             if ($item === null) {
-                $cursor = $this->connection->select('s.id, tab.id tid, ' .
-                    'IFNULL(lo_tab.title, tab.title) title, ' .
-                    'IFNULL(lo_tab.description, tab.description) description')
-                    ->from($this->tableSeoIdent)->as('s')
-                    ->leftJoin($this->tableSeo)->as('tab')->on('tab.id_ident=s.id')->and('tab.id_locale IS NULL')
-                    ->leftJoin($this->tableSeo)->as('lo_tab')->on('lo_tab.id_ident=s.id')->and('lo_tab.id_locale=%i', $idLocale)
-                    ->where($values);
-
+                $cursor = $this->connection->select('s.id, s.title, s.description')
+                    ->from($this->tableSeoIdent)->as('si')
+                    ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')
+                    ->where([
+                        's.id_locale' => $idLocale,
+                        's.id_ident'  => $idIdent,
+                        's.id_item'   => $idItem,
+                    ]);
 //                $cursor->test();
                 $item = $cursor->fetch();
 
@@ -185,9 +177,9 @@ class Seo extends Control
             }
 
             // insert null locale item
-            if (!$item['tid']) {
+            if (!$item) {
                 $this->connection->insert($this->tableSeo, [
-                    'id_locale' => null,
+                    'id_locale' => $idLocale,
                     'id_ident'  => $idIdent,
                     'id_item'   => $idItem,
                 ])->execute();
@@ -196,10 +188,12 @@ class Seo extends Control
             // catch is* method
             switch ($name) {
                 case 'isTitle':
+                case 'getTitle':
                     return $item['title'];
                     break;
 
                 case 'isDescription':
+                case 'getDescription':
                     return $item['description'];
                     break;
             }

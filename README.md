@@ -41,12 +41,22 @@ extensions:
 
 usage:
 ```php
-use Seo\Seo;
-
 protected function createComponentSeo(Seo $seo)
 {
     return $seo;
 }
+```
+
+```latte
+{control seo:title}
+{control seo:description}
+{control seo:title 'default-latte'}
+{control seo:description 'default-latte'}
+return usage: {control seo:description 'default-latte', true}
+{if $presenter['seo']->isTitle()}
+{if $presenter['seo']->getTitle()}
+{if $presenter['seo']->isDescription()}
+{if $presenter['seo']->gerDescription()}
 ```
 
 usage @layout.latte:
