@@ -34,6 +34,8 @@ class Seo extends Control
     private $application;
     /** @var string table names */
     private $tableSeo, $tableSeoIdent;
+    /** @var bool */
+    private $autoCreate = true;
 
 
     /**
@@ -54,6 +56,19 @@ class Seo extends Control
         // define table names
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
+    }
+
+
+    /**
+     * Set auto create.
+     *
+     * @param bool $status
+     * @return Seo
+     */
+    public function setAutoCreate($status)
+    {
+        $this->autoCreate = $status;
+        return $this;
     }
 
 
@@ -177,7 +192,7 @@ class Seo extends Control
             }
 
             // insert null locale item
-            if (!$item) {
+            if (!$item && $this->autoCreate) {
                 $this->connection->insert($this->tableSeo, [
                     'id_locale' => $idLocale,
                     'id_ident'  => $idIdent,
