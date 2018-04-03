@@ -53,10 +53,10 @@ protected function createComponentSeo(Seo $seo)
 {control seo:title 'default-latte'}
 {control seo:description 'default-latte'}
 return usage: {control seo:description 'default-latte', true}
-{if $presenter['seo']->isTitle()}
-{if $presenter['seo']->getTitle()}
-{if $presenter['seo']->isDescription()}
-{if $presenter['seo']->gerDescription()}
+{if $presenter['seo']->isTitle()} ... {/if}
+{if $presenter['seo']->getTitle()} ... {/if}
+{if $presenter['seo']->isDescription()} ... {/if}
+{if $presenter['seo']->gerDescription()} ... {/if}
 ```
 
 usage @layout.latte:
