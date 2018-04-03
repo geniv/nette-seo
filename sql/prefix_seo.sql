@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost:3306
--- Vytvořeno: Stř 28. bře 2018, 16:17
+-- Vytvořeno: Úte 03. dub 2018, 15:10
 -- Verze serveru: 10.1.26-MariaDB-0+deb9u1
 -- Verze PHP: 7.0.27-0+deb9u1
 
@@ -44,7 +44,6 @@ CREATE TABLE `prefix_seo` (
 --
 ALTER TABLE `prefix_seo`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `locale_ident_UNIQUE` (`id_locale`,`id_ident`),
   ADD KEY `fk_seo_locale_idx` (`id_locale`),
   ADD KEY `fk_seo_seo_ident_idx` (`id_ident`);
 
