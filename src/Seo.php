@@ -168,7 +168,7 @@ class Seo extends Control
             $idIdent = ($ident ? $this->getIdIdentByIdent($ident) : $this->getIdIdentByPresenterAction($presenterName, $presenterAction));
 
             // ignore $idItem in case $ident mode
-            if ($idIdent && $idItem) {
+            if ($ident && $idItem) {
                 $idItem = null;
             }
 
@@ -186,18 +186,18 @@ class Seo extends Control
 //                $cursor->test();
                 $item = $cursor->fetch();
 
+                // insert null locale item
+                if (!$item && $this->autoCreate) {
+                    $this->connection->insert($this->tableSeo, [
+                        'id_locale' => $idLocale,
+                        'id_ident'  => $idIdent,
+                        'id_item'   => $idItem,
+                    ])->execute();
+                }
+
                 $this->cache->save($cacheKey, $item, [
                     Cache::TAGS => ['seo-cache'],
                 ]);
-            }
-
-            // insert null locale item
-            if (!$item && $this->autoCreate) {
-                $this->connection->insert($this->tableSeo, [
-                    'id_locale' => $idLocale,
-                    'id_ident'  => $idIdent,
-                    'id_item'   => $idItem,
-                ])->execute();
             }
 
             // catch is* method
