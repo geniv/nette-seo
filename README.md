@@ -29,8 +29,8 @@ neon configure:
 ```neon
 # seo
 seo:
-    tablePrefix: %tablePrefix%
 #   autowired: true
+    tablePrefix: %tablePrefix%
 #   enabled: true
 ```
 
