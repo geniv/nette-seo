@@ -57,7 +57,7 @@ class Seo extends Control
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
 
-        $this->enabled = $parameters['enabled'];
+        $this->enabled = boolval($parameters['enabled']);
     }
 
 
