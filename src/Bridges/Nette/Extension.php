@@ -18,6 +18,7 @@ class Extension extends CompilerExtension
     private $defaults = [
         'tablePrefix' => null,
         'autowired'   => true,
+        'enabled'     => true,
     ];
 
 
