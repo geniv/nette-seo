@@ -35,7 +35,7 @@ class Seo extends Control
     /** @var string table names */
     private $tableSeo, $tableSeoIdent;
     /** @var bool */
-    private $autoCreate = true;
+    private $autoCreate = true, $enabled = true;
 
 
     /**
@@ -56,6 +56,8 @@ class Seo extends Control
         // define table names
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
+
+        $this->enabled = $parameters['enabled'];
     }
 
 
@@ -152,7 +154,7 @@ class Seo extends Control
      */
     public function __call($name, $args)
     {
-        if (!in_array($name, ['onAnchor'])) {   // nesmi zachytavat definovane metody
+        if (!in_array($name, ['onAnchor']) && $this->enabled) {   // nesmi zachytavat definovane metody
             $presenter = $this->application->getPresenter();
 
             $idLocale = $this->locale->getIdByCode($presenter->getParameter('locale') ?: '');

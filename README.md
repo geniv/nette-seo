@@ -31,6 +31,7 @@ neon configure:
 seo:
     tablePrefix: %tablePrefix%
 #   autowired: true
+#   enabled: true
 ```
 
 neon configure extension:
