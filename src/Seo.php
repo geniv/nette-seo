@@ -51,7 +51,7 @@ class Seo extends Control
     {
         $this->connection = $connection;
         $this->locale = $locale;
-        $this->cache = new Cache($storage, 'cache-Seo-Seo');
+        $this->cache = new Cache($storage, 'Seo-Seo');
         $this->application = $application;
         // define table names
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
