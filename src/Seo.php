@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Seo;
 
@@ -59,32 +59,31 @@ class Seo extends Control
 
         $this->enabled = boolval($parameters['enabled']);
     }
+//FIXME nacitat rovnou do jednoho pole!
 
 
     /**
      * Set auto create.
      *
      * @param bool $status
-     * @return Seo
      */
-    public function setAutoCreate($status)
+    public function setAutoCreate(bool $status)
     {
         $this->autoCreate = $status;
-        return $this;
     }
 
 
     /**
      * Internal insert and get id seo by presenter and action.
      *
-     * @param $presenter
-     * @param $action
-     * @return mixed
+     * @internal
+     * @param string $presenter
+     * @param string $action
+     * @return \Dibi\Result|int|mixed
      * @throws \Dibi\Exception
-     * @throws \Exception
      * @throws \Throwable
      */
-    private function getIdIdentByPresenterAction($presenter, $action)
+    private function getIdIdentByPresenterAction(string $presenter, string $action)
     {
         $cacheKey = 'getIdIdentByPresenterAction-' . $presenter . '-' . $action;
         $id = $this->cache->load($cacheKey);
@@ -112,13 +111,13 @@ class Seo extends Control
     /**
      * Internal insert and get id seo by ident.
      *
-     * @param $ident
-     * @return mixed
+     * @internal
+     * @param string $ident
+     * @return \Dibi\Result|int|mixed
      * @throws \Dibi\Exception
-     * @throws \Exception
      * @throws \Throwable
      */
-    private function getIdIdentByIdent($ident)
+    private function getIdIdentByIdent(string $ident)
     {
         $cacheKey = 'getIdIdentByIdent-' . $ident;
         $id = $this->cache->load($cacheKey);
