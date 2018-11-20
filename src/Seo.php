@@ -119,9 +119,12 @@ class Seo extends Control
     {
         $this->values = [];
 //FIXME nacitat rovnou do jednoho pole!
-        $this->values = $this->connection->select('s.id, s.id_ident, s.id_item, s.title, s.description, si.ident, si.presenter, si.action')
+        $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, s.id_ident, s.id_item, s.title, s.description')
             ->from($this->tableSeoIdent)->as('si')
             ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->idLocale]);
+
+        echo "</title></head>";
+        $this->values->test();
 
         dump($this->idLocale, $this->values);
     }
