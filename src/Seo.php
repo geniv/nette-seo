@@ -26,16 +26,21 @@ class Seo extends Control
 
     /** @var Cache */
     private $cache;
-    /** @var Connection database connection from DI */
+    /** @var Connection */
     private $connection;
     /** @var ILocale */
     private $locale;
     /** @var Application */
     private $application;
-    /** @var string table names */
+    /** @var string */
     private $tableSeo, $tableSeoIdent;
     /** @var bool */
     private $autoCreate = true, $enabled = true;
+
+    /** @var int */
+    private $idLocale;
+    /** @var array */
+    private $values = [];
 
 
     /**
@@ -58,8 +63,11 @@ class Seo extends Control
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
 
         $this->enabled = boolval($parameters['enabled']);
+
+        $this->idLocale = $locale->getIdDefault();
+
+        $this->loadInternalData();
     }
-//FIXME nacitat rovnou do jednoho pole!
 
 
     /**
@@ -73,157 +81,206 @@ class Seo extends Control
     }
 
 
-    /**
-     * Internal insert and get id seo by presenter and action.
-     *
-     * @internal
-     * @param string $presenter
-     * @param string $action
-     * @return \Dibi\Result|int|mixed
-     * @throws \Dibi\Exception
-     * @throws \Throwable
-     */
-    private function getIdIdentByPresenterAction(string $presenter, string $action)
+    public function isTitle(string $identification = null): bool
     {
-        $cacheKey = 'getIdIdentByPresenterAction-' . $presenter . '-' . $action;
-        $id = $this->cache->load($cacheKey);
-        if ($id === null) {
-            $id = $this->connection->select('id')
-                ->from($this->tableSeoIdent)
-                ->where(['presenter' => $presenter, 'action' => $action])
-                ->fetchSingle();
-
-            if (!$id) {
-                $id = $this->connection->insert($this->tableSeoIdent, [
-                    'presenter' => $presenter,
-                    'action'    => $action,
-                ])->execute(Dibi::IDENTIFIER);
-            }
-
-            $this->cache->save($cacheKey, $id, [
-                Cache::TAGS => ['seo-cache'],
-            ]);
-        }
-        return $id;
+        return false;
     }
 
 
-    /**
-     * Internal insert and get id seo by ident.
-     *
-     * @internal
-     * @param string $ident
-     * @return \Dibi\Result|int|mixed
-     * @throws \Dibi\Exception
-     * @throws \Throwable
-     */
-    private function getIdIdentByIdent(string $ident)
+    public function getTitle(string $identification = null, string $default = null): string
     {
-        $cacheKey = 'getIdIdentByIdent-' . $ident;
-        $id = $this->cache->load($cacheKey);
-        if ($id === null) {
-            $values = ['ident' => $ident];
-            $id = $this->connection->select('id')
-                ->from($this->tableSeoIdent)
-                ->where($values)
-                ->fetchSingle();
-
-            // insert new identification if not exist
-            if (!$id) {
-                $id = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
-            }
-
-            $this->cache->save($cacheKey, $id, [
-                Cache::TAGS => ['seo-cache'],
-            ]);
-        }
-        return $id;
+        return '';
     }
 
 
-    /**
-     * Overloading is and get method.
-     *
-     * @param $name
-     * @param $args
-     * @return mixed
-     * @throws \Dibi\Exception
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    public function __call($name, $args)
+    public function renderTitle(string $identification = null, string $default = null)
     {
-        if (!in_array($name, ['onAnchor']) && $this->enabled) {   // nesmi zachytavat definovane metody
-            $presenter = $this->application->getPresenter();
-
-            $idLocale = $this->locale->getIdByCode($presenter->getParameter('locale') ?: '');
-            $presenterName = $presenter->getName();
-            $presenterAction = $presenter->action;
-            $idItem = $presenter->getParameter('id');
-
-            $methodName = strtolower(substr($name, 6)); // load method name
-            $ident = (isset($args[0]) ? $args[0] : null);
-            $return = (isset($args[1]) ? $args[1] : false); // echo / return
-
-            // get $idIdent from ident mode or presenter-action mode
-            $idIdent = ($ident ? $this->getIdIdentByIdent($ident) : $this->getIdIdentByPresenterAction($presenterName, $presenterAction));
-
-            // ignore $idItem in case $ident mode
-            if ($ident && $idItem) {
-                $idItem = null;
-            }
-
-            $cacheKey = $name . '-' . $idLocale . '-' . $idIdent . '-' . intval($idItem);
-            $item = $this->cache->load($cacheKey);
-            if ($item === null) {
-                $cursor = $this->connection->select('s.id, s.title, s.description')
-                    ->from($this->tableSeoIdent)->as('si')
-                    ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')
-                    ->where([
-                        's.id_locale' => $idLocale,
-                        's.id_ident'  => $idIdent,
-                        's.id_item'   => $idItem,
-                    ]);
-//                $cursor->test();
-                $item = $cursor->fetch();
-
-                // insert null locale item
-                if (!$item && $this->autoCreate) {
-                    $this->connection->insert($this->tableSeo, [
-                        'id_locale' => $idLocale,
-                        'id_ident'  => $idIdent,
-                        'id_item'   => $idItem,
-                    ])->execute();
-                }
-
-                $this->cache->save($cacheKey, $item, [
-                    Cache::TAGS => ['seo-cache'],
-                ]);
-            }
-
-            // catch is* method
-            switch ($name) {
-                case 'isTitle':
-                case 'getTitle':
-                    return $item['title'];
-                    break;
-
-                case 'isDescription':
-                case 'getDescription':
-                    return $item['description'];
-                    break;
-            }
-
-            $value = $item[$methodName];
-
-            // return value
-            if ($value) {
-                if ($return) {
-                    return $value;
-                } else {
-                    echo $value;
-                }
-            }
-        }
     }
+
+
+    public function isDescription(string $identification = null): bool
+    {
+        return false;
+    }
+
+
+    public function getDescription(string $identification = null, string $default = null): string
+    {
+        return '';
+    }
+
+
+    public function renderDescription(string $identification = null, string $default = null)
+    {
+    }
+
+
+    private function loadInternalData()
+    {
+        $this->values = [];
+//FIXME nacitat rovnou do jednoho pole!
+        $this->values = $this->connection->select('s.id, s.id_ident, s.id_item, s.title, s.description, si.ident, si.presenter, si.action')
+            ->from($this->tableSeoIdent)->as('si')
+            ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->idLocale]);
+
+        dump($this->idLocale, $this->values);
+    }
+
+
+    private function saveInternalData() { }
+
+
+//    /**
+//     * Internal insert and get id seo by presenter and action.
+//     *
+//     * @internal
+//     * @param string $presenter
+//     * @param string $action
+//     * @return \Dibi\Result|int|mixed
+//     * @throws \Dibi\Exception
+//     * @throws \Throwable
+//     */
+//    private function getIdIdentByPresenterAction(string $presenter, string $action)
+//    {
+//        $cacheKey = 'getIdIdentByPresenterAction-' . $presenter . '-' . $action;
+//        $id = $this->cache->load($cacheKey);
+//        if ($id === null) {
+//            $id = $this->connection->select('id')
+//                ->from($this->tableSeoIdent)
+//                ->where(['presenter' => $presenter, 'action' => $action])
+//                ->fetchSingle();
+//
+//            if (!$id) {
+//                $id = $this->connection->insert($this->tableSeoIdent, [
+//                    'presenter' => $presenter,
+//                    'action'    => $action,
+//                ])->execute(Dibi::IDENTIFIER);
+//            }
+//
+//            $this->cache->save($cacheKey, $id, [
+//                Cache::TAGS => ['seo-cache'],
+//            ]);
+//        }
+//        return $id;
+//    }
+
+
+//    /**
+//     * Internal insert and get id seo by ident.
+//     *
+//     * @internal
+//     * @param string $ident
+//     * @return \Dibi\Result|int|mixed
+//     * @throws \Dibi\Exception
+//     * @throws \Throwable
+//     */
+//    private function getIdIdentByIdent(string $ident)
+//    {
+//        $cacheKey = 'getIdIdentByIdent-' . $ident;
+//        $id = $this->cache->load($cacheKey);
+//        if ($id === null) {
+//            $values = ['ident' => $ident];
+//            $id = $this->connection->select('id')
+//                ->from($this->tableSeoIdent)
+//                ->where($values)
+//                ->fetchSingle();
+//
+//            // insert new identification if not exist
+//            if (!$id) {
+//                $id = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
+//            }
+//
+//            $this->cache->save($cacheKey, $id, [
+//                Cache::TAGS => ['seo-cache'],
+//            ]);
+//        }
+//        return $id;
+//    }
+
+
+//    /**
+//     * Overloading is and get method.
+//     *
+//     * @param $name
+//     * @param $args
+//     * @return mixed
+//     * @throws \Dibi\Exception
+//     * @throws \Exception
+//     * @throws \Throwable
+//     */
+//    public function __call($name, $args)
+//    {
+//        if (!in_array($name, ['onAnchor']) && $this->enabled) {   // nesmi zachytavat definovane metody
+//            $presenter = $this->application->getPresenter();
+//
+//            $idLocale = $this->locale->getIdByCode($presenter->getParameter('locale') ?: '');
+//            $presenterName = $presenter->getName();
+//            $presenterAction = $presenter->action;
+//            $idItem = $presenter->getParameter('id');
+//
+//            $methodName = strtolower(substr($name, 6)); // load method name
+//            $ident = (isset($args[0]) ? $args[0] : null);
+//            $return = (isset($args[1]) ? $args[1] : false); // echo / return
+//
+//            // get $idIdent from ident mode or presenter-action mode
+//            $idIdent = ($ident ? $this->getIdIdentByIdent($ident) : $this->getIdIdentByPresenterAction($presenterName, $presenterAction));
+//
+//            // ignore $idItem in case $ident mode
+//            if ($ident && $idItem) {
+//                $idItem = null;
+//            }
+//
+//            $cacheKey = $name . '-' . $idLocale . '-' . $idIdent . '-' . intval($idItem);
+//            $item = $this->cache->load($cacheKey);
+//            if ($item === null) {
+//                $cursor = $this->connection->select('s.id, s.title, s.description')
+//                    ->from($this->tableSeoIdent)->as('si')
+//                    ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')
+//                    ->where([
+//                        's.id_locale' => $idLocale,
+//                        's.id_ident'  => $idIdent,
+//                        's.id_item'   => $idItem,
+//                    ]);
+////                $cursor->test();
+//                $item = $cursor->fetch();
+//
+//                // insert null locale item
+//                if (!$item && $this->autoCreate) {
+//                    $this->connection->insert($this->tableSeo, [
+//                        'id_locale' => $idLocale,
+//                        'id_ident'  => $idIdent,
+//                        'id_item'   => $idItem,
+//                    ])->execute();
+//                }
+//
+//                $this->cache->save($cacheKey, $item, [
+//                    Cache::TAGS => ['seo-cache'],
+//                ]);
+//            }
+//
+//            // catch is* method
+//            switch ($name) {
+//                case 'isTitle':
+//                case 'getTitle':
+//                    return $item['title'];
+//                    break;
+//
+//                case 'isDescription':
+//                case 'getDescription':
+//                    return $item['description'];
+//                    break;
+//            }
+//
+//            $value = $item[$methodName];
+//
+//            // return value
+//            if ($value) {
+//                if ($return) {
+//                    return $value;
+//                } else {
+//                    echo $value;
+//                }
+//            }
+//        }
+//    }
 }
