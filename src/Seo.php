@@ -87,14 +87,23 @@ class Seo extends Control
      */
     private function getItem(string $identification = null): array
     {
+        $presenter = $this->application->getPresenter();
+        $presenterName = $presenter->getName();
+        $presenterAction = $presenter->action;
+
         if ($identification) {
-            return (array) $this->values[$identification . '--'] ?? [];
+            $index = $identification . '--';
         } else {
-            $presenter = $this->application->getPresenter();
-            $presenterName = $presenter->getName();
-            $presenterAction = $presenter->action;
-            return (array) $this->values['-' . $presenterName . '-' . $presenterAction] ?? [];
+            $index = '-' . $presenterName . '-' . $presenterAction;
         }
+
+        if (isset($this->values[$index])) {
+            $item = $this->values[$index];
+        } else {
+            $item = [];
+            $this->saveInternalData($identification, $presenterName, $presenterAction);
+        }
+        return (array) $item;
     }
 
 
@@ -206,7 +215,46 @@ class Seo extends Control
     }
 
 
-    private function saveInternalData() { }
+    /**
+     * Save internal data.
+     *
+     * @internal
+     * @param string|null $identification
+     * @param string|null $presenter
+     * @param string|null $action
+     * @throws \Dibi\Exception
+     */
+    private function saveInternalData(string $identification = null, string $presenter = null, string $action = null)
+    {
+        if ($identification) {
+            $values = ['ident' => $identification];
+        } else {
+            $values = ['presenter' => $presenter, 'action' => $action];
+        }
+
+        $idIdentification = $this->connection->select('id')
+            ->from($this->tableSeoIdent)
+            ->where($values)
+            ->fetchSingle();
+
+        if (!$idIdentification) {
+            $idIdentification = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
+        }
+
+        // insert null locale item
+        if (!$idIdentification && $this->autoCreate) {
+            $idLocale = $this->locale->getId();
+
+            $presenter = $this->application->getPresenter();
+            $idItem = $presenter->getParameter('id');
+
+            $this->connection->insert($this->tableSeo, [
+                'id_locale' => $idLocale,
+                'id_ident'  => $idIdentification,
+                'id_item'   => $idItem,
+            ])->execute();
+        }
+    }
 
 
 //    /**
