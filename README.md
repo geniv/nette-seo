@@ -1,7 +1,7 @@
 Seo title and description
 =========================
 
-description: block title and description are internal save to database
+description: block title and description are automatic internal save to database
 
 Installation
 ------------
@@ -51,14 +51,24 @@ protected function createComponentSeo(Seo $seo)
 
 ```latte
 {control seo:title}
+{control seo:title, null, 'default'}
 {control seo:description}
+{control seo:description, null, 'default'}
 {control seo:title 'default-latte'}
+{control seo:title 'default-latte', 'default'}
 {control seo:description 'default-latte'}
-return usage: {control seo:description 'default-latte', true}
+{control seo:description 'default-latte', 'default'}
+return usage: {control seo:description 'default-latte'}
 {if $presenter['seo']->isTitle()} ... {/if}
+{if $presenter['seo']->isTitle('ident')} ... {/if}
 {if $presenter['seo']->getTitle()} ... {/if}
+{if $presenter['seo']->getTitle('ident')} ... {/if}
+{if $presenter['seo']->getTitle('ident', 'default')} ... {/if}
 {if $presenter['seo']->isDescription()} ... {/if}
+{if $presenter['seo']->isDescription('ident')} ... {/if}
 {if $presenter['seo']->gerDescription()} ... {/if}
+{if $presenter['seo']->gerDescription('ident')} ... {/if}
+{if $presenter['seo']->gerDescription('ident', 'default')} ... {/if}
 ```
 
 usage @layout.latte:
