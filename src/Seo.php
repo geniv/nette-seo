@@ -244,18 +244,23 @@ class Seo extends Control
             $idIdentification = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
         }
 
+        $idLocale = $this->locale->getId();
+        $presenter = $this->application->getPresenter();
+        $idItem = $presenter->getParameter('id');
+        $val = [
+            'id_locale' => $idLocale,
+            'id_ident'  => $idIdentification,
+            'id_item'   => $idItem,
+        ];
+
+        $item = $this->connection->select('id')
+            ->from($this->tableSeo)
+            ->where($val)
+            ->fetchSingle();
+
         // insert null locale item
-        if (!$idIdentification && $this->autoCreate) {
-            $idLocale = $this->locale->getId();
-
-            $presenter = $this->application->getPresenter();
-            $idItem = $presenter->getParameter('id');
-
-            $this->connection->insert($this->tableSeo, [
-                'id_locale' => $idLocale,
-                'id_ident'  => $idIdentification,
-                'id_item'   => $idItem,
-            ])->execute();
+        if (!$item && $this->autoCreate) {
+            $this->connection->insert($this->tableSeo, $val)->execute();
         }
     }
 
