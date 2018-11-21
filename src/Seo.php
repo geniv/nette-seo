@@ -84,6 +84,7 @@ class Seo extends Control
      * @internal
      * @param string|null $identification
      * @return array
+     * @throws \Dibi\Exception
      */
     private function getItem(string $identification = null): array
     {
@@ -112,11 +113,11 @@ class Seo extends Control
      *
      * @param string|null $identification
      * @return bool
+     * @throws \Dibi\Exception
      */
     public function isTitle(string $identification = null): bool
     {
-        $item = $this->getItem($identification);
-        return (bool) $item['title'];
+        return (bool) $this->getTitle($identification);
     }
 
 
@@ -125,11 +126,11 @@ class Seo extends Control
      *
      * @param string|null $identification
      * @return bool
+     * @throws \Dibi\Exception
      */
     public function isDescription(string $identification = null): bool
     {
-        $item = $this->getItem($identification);
-        return (bool) $item['description'];
+        return (bool) $this->getDescription($identification);
     }
 
 
@@ -139,11 +140,12 @@ class Seo extends Control
      * @param string|null $identification
      * @param string|null $default
      * @return string
+     * @throws \Dibi\Exception
      */
     public function getTitle(string $identification = null, string $default = null): string
     {
         $item = $this->getItem($identification);
-        return $item['title'] ?: $default;
+        return $item['title'] ?? $default;
     }
 
 
@@ -153,11 +155,12 @@ class Seo extends Control
      * @param string|null $identification
      * @param string|null $default
      * @return string
+     * @throws \Dibi\Exception
      */
     public function getDescription(string $identification = null, string $default = null): string
     {
         $item = $this->getItem($identification);
-        return $item['description'] ?: $default;
+        return $item['description'] ?? $default;
     }
 
 
@@ -166,11 +169,11 @@ class Seo extends Control
      *
      * @param string|null $identification
      * @param string|null $default
+     * @throws \Dibi\Exception
      */
     public function renderTitle(string $identification = null, string $default = null)
     {
-        $item = $this->getItem($identification);
-        echo $item['title'] ?: $default;
+        echo $this->getTitle($identification, $default);
     }
 
 
@@ -179,11 +182,11 @@ class Seo extends Control
      *
      * @param string|null $identification
      * @param string|null $default
+     * @throws \Dibi\Exception
      */
     public function renderDescription(string $identification = null, string $default = null)
     {
-        $item = $this->getItem($identification);
-        echo $item['description'] ?: $default;
+        echo $this->getDescription($identification, $default);
     }
 
 
