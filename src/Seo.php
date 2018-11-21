@@ -262,6 +262,8 @@ class Seo extends Control
         if (!$item && $this->autoCreate) {
             $this->connection->insert($this->tableSeo, $val)->execute();
         }
+
+        $this->cache->clean([Cache::TAGS => ['loadData']]);
     }
 
 
