@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Seo;
 
@@ -26,16 +26,18 @@ class Seo extends Control
 
     /** @var Cache */
     private $cache;
-    /** @var Connection database connection from DI */
+    /** @var Connection */
     private $connection;
     /** @var ILocale */
     private $locale;
     /** @var Application */
     private $application;
-    /** @var string table names */
+    /** @var string */
     private $tableSeo, $tableSeoIdent;
     /** @var bool */
     private $autoCreate = true, $enabled = true;
+    /** @var array */
+    private $values = [];
 
 
     /**
@@ -49,15 +51,18 @@ class Seo extends Control
      */
     public function __construct(array $parameters, Connection $connection, ILocale $locale, IStorage $storage, Application $application)
     {
-        $this->connection = $connection;
-        $this->locale = $locale;
-        $this->cache = new Cache($storage, 'Seo-Seo');
-        $this->application = $application;
         // define table names
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
 
+        $this->connection = $connection;
+        $this->locale = $locale;
+        $this->cache = new Cache($storage, 'Seo-Seo');
+        $this->application = $application;
+
         $this->enabled = boolval($parameters['enabled']);
+
+        $this->loadInternalData();
     }
 
 
@@ -65,166 +70,198 @@ class Seo extends Control
      * Set auto create.
      *
      * @param bool $status
-     * @return Seo
      */
-    public function setAutoCreate($status)
+    public function setAutoCreate(bool $status)
     {
         $this->autoCreate = $status;
-        return $this;
     }
 
 
     /**
-     * Internal insert and get id seo by presenter and action.
+     * Get item.
      *
-     * @param $presenter
-     * @param $action
-     * @return mixed
+     * @internal
+     * @param string|null $identification
+     * @return array
      * @throws \Dibi\Exception
-     * @throws \Exception
-     * @throws \Throwable
      */
-    private function getIdIdentByPresenterAction($presenter, $action)
+    private function getItem(string $identification = null): array
     {
-        $cacheKey = 'getIdIdentByPresenterAction-' . $presenter . '-' . $action;
-        $id = $this->cache->load($cacheKey);
-        if ($id === null) {
-            $id = $this->connection->select('id')
-                ->from($this->tableSeoIdent)
-                ->where(['presenter' => $presenter, 'action' => $action])
-                ->fetchSingle();
+        $presenter = $this->application->getPresenter();
+        $presenterName = $presenter->getName();
+        $presenterAction = $presenter->action;
 
-            if (!$id) {
-                $id = $this->connection->insert($this->tableSeoIdent, [
-                    'presenter' => $presenter,
-                    'action'    => $action,
-                ])->execute(Dibi::IDENTIFIER);
-            }
-
-            $this->cache->save($cacheKey, $id, [
-                Cache::TAGS => ['seo-cache'],
-            ]);
+        if ($identification) {
+            $index = $identification . '--';
+        } else {
+            $index = '-' . $presenterName . '-' . $presenterAction;
         }
-        return $id;
-    }
 
-
-    /**
-     * Internal insert and get id seo by ident.
-     *
-     * @param $ident
-     * @return mixed
-     * @throws \Dibi\Exception
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    private function getIdIdentByIdent($ident)
-    {
-        $cacheKey = 'getIdIdentByIdent-' . $ident;
-        $id = $this->cache->load($cacheKey);
-        if ($id === null) {
-            $values = ['ident' => $ident];
-            $id = $this->connection->select('id')
-                ->from($this->tableSeoIdent)
-                ->where($values)
-                ->fetchSingle();
-
-            // insert new identification if not exist
-            if (!$id) {
-                $id = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
-            }
-
-            $this->cache->save($cacheKey, $id, [
-                Cache::TAGS => ['seo-cache'],
-            ]);
+        if (isset($this->values[$index])) {
+            $item = $this->values[$index];
+        } else {
+            $item = [];
+            $this->saveInternalData($identification, $presenterName, $presenterAction);
         }
-        return $id;
+        return (array) $item;
     }
 
 
     /**
-     * Overloading is and get method.
+     * Is title.
      *
-     * @param $name
-     * @param $args
-     * @return mixed
+     * @param string|null $identification
+     * @return bool
      * @throws \Dibi\Exception
-     * @throws \Exception
-     * @throws \Throwable
      */
-    public function __call($name, $args)
+    public function isTitle(string $identification = null): bool
     {
-        if (!in_array($name, ['onAnchor']) && $this->enabled) {   // nesmi zachytavat definovane metody
-            $presenter = $this->application->getPresenter();
+        return (bool) $this->getTitle($identification);
+    }
 
-            $idLocale = $this->locale->getIdByCode($presenter->getParameter('locale') ?: '');
-            $presenterName = $presenter->getName();
-            $presenterAction = $presenter->action;
-            $idItem = $presenter->getParameter('id');
 
-            $methodName = strtolower(substr($name, 6)); // load method name
-            $ident = (isset($args[0]) ? $args[0] : null);
-            $return = (isset($args[1]) ? $args[1] : false); // echo / return
+    /**
+     * Is description.
+     *
+     * @param string|null $identification
+     * @return bool
+     * @throws \Dibi\Exception
+     */
+    public function isDescription(string $identification = null): bool
+    {
+        return (bool) $this->getDescription($identification);
+    }
 
-            // get $idIdent from ident mode or presenter-action mode
-            $idIdent = ($ident ? $this->getIdIdentByIdent($ident) : $this->getIdIdentByPresenterAction($presenterName, $presenterAction));
 
-            // ignore $idItem in case $ident mode
-            if ($ident && $idItem) {
-                $idItem = null;
-            }
+    /**
+     * Get title.
+     *
+     * @param string|null $identification
+     * @param string      $default
+     * @return string
+     * @throws \Dibi\Exception
+     */
+    public function getTitle(string $identification = null, string $default = ''): string
+    {
+        $item = $this->getItem($identification);
+        return $item['title'] ?? $default;
+    }
 
-            $cacheKey = $name . '-' . $idLocale . '-' . $idIdent . '-' . intval($idItem);
-            $item = $this->cache->load($cacheKey);
-            if ($item === null) {
-                $cursor = $this->connection->select('s.id, s.title, s.description')
-                    ->from($this->tableSeoIdent)->as('si')
-                    ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')
-                    ->where([
-                        's.id_locale' => $idLocale,
-                        's.id_ident'  => $idIdent,
-                        's.id_item'   => $idItem,
-                    ]);
-//                $cursor->test();
-                $item = $cursor->fetch();
 
-                // insert null locale item
-                if (!$item && $this->autoCreate) {
-                    $this->connection->insert($this->tableSeo, [
-                        'id_locale' => $idLocale,
-                        'id_ident'  => $idIdent,
-                        'id_item'   => $idItem,
-                    ])->execute();
-                }
+    /**
+     * Get description.
+     *
+     * @param string|null $identification
+     * @param string      $default
+     * @return string
+     * @throws \Dibi\Exception
+     */
+    public function getDescription(string $identification = null, string $default = ''): string
+    {
+        $item = $this->getItem($identification);
+        return $item['description'] ?? $default;
+    }
 
-                $this->cache->save($cacheKey, $item, [
-                    Cache::TAGS => ['seo-cache'],
+
+    /**
+     * Render title.
+     *
+     * @param string|null $identification
+     * @param string      $default
+     * @throws \Dibi\Exception
+     */
+    public function renderTitle(string $identification = null, string $default = '')
+    {
+        echo $this->getTitle($identification, $default);
+    }
+
+
+    /**
+     * Render description.
+     *
+     * @param string|null $identification
+     * @param string      $default
+     * @throws \Dibi\Exception
+     */
+    public function renderDescription(string $identification = null, string $default = '')
+    {
+        echo $this->getDescription($identification, $default);
+    }
+
+
+    /**
+     * Load internal data.
+     *
+     * @internal
+     */
+    private function loadInternalData()
+    {
+        $idLocale = $this->locale->getId();
+        $cacheKey = 'loadInternalData' . $idLocale;
+        $this->values = $this->cache->load($cacheKey);
+        if ($this->values === null) {
+            $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, ' .
+                'CONCAT(IFNULL(si.ident, ""), "-", IFNULL(si.presenter, ""), "-", IFNULL(si.action, "")) assoc, ' .
+                's.id_ident, s.id_item, s.title, s.description')
+                ->from($this->tableSeoIdent)->as('si')
+                ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $idLocale])
+                ->fetchAssoc('assoc');
+
+            try {
+                $this->cache->save($cacheKey, $this->values, [
+                    Cache::TAGS => ['loadData'],
                 ]);
-            }
-
-            // catch is* method
-            switch ($name) {
-                case 'isTitle':
-                case 'getTitle':
-                    return $item['title'];
-                    break;
-
-                case 'isDescription':
-                case 'getDescription':
-                    return $item['description'];
-                    break;
-            }
-
-            $value = $item[$methodName];
-
-            // return value
-            if ($value) {
-                if ($return) {
-                    return $value;
-                } else {
-                    echo $value;
-                }
+            } catch (\Throwable $e) {
             }
         }
+    }
+
+
+    /**
+     * Save internal data.
+     *
+     * @internal
+     * @param string|null $identification
+     * @param string|null $presenter
+     * @param string|null $action
+     * @throws \Dibi\Exception
+     */
+    private function saveInternalData(string $identification = null, string $presenter = null, string $action = null)
+    {
+        if ($identification) {
+            $values = ['ident' => $identification];
+        } else {
+            $values = ['presenter' => $presenter, 'action' => $action];
+        }
+
+        $idIdentification = $this->connection->select('id')
+            ->from($this->tableSeoIdent)
+            ->where($values)
+            ->fetchSingle();
+
+        if (!$idIdentification) {
+            $idIdentification = $this->connection->insert($this->tableSeoIdent, $values)->execute(Dibi::IDENTIFIER);
+        }
+
+        $idLocale = $this->locale->getId();
+        $presenter = $this->application->getPresenter();
+        $idItem = $presenter->getParameter('id');
+        $val = [
+            'id_locale' => $idLocale,
+            'id_ident'  => $idIdentification,
+            'id_item'   => $idItem,
+        ];
+
+        $item = $this->connection->select('id')
+            ->from($this->tableSeo)
+            ->where($val)
+            ->fetchSingle();
+
+        // insert null locale item
+        if (!$item && $this->autoCreate) {
+            $this->connection->insert($this->tableSeo, $val)->execute();
+        }
+
+        $this->cache->clean([Cache::TAGS => ['loadData']]);
     }
 }
