@@ -37,8 +37,8 @@ class Seo extends Control
     /** @var bool */
     private $autoCreate = true, $enabled = true;
 
-    /** @var int */
-    private $idLocale;
+//    /** @var int */
+//    private $idLocale;
     /** @var array */
     private $values = [];
 
@@ -54,17 +54,18 @@ class Seo extends Control
      */
     public function __construct(array $parameters, Connection $connection, ILocale $locale, IStorage $storage, Application $application)
     {
-        $this->connection = $connection;
-        $this->locale = $locale;
-        $this->cache = new Cache($storage, 'Seo-Seo');
-        $this->application = $application;
         // define table names
         $this->tableSeo = $parameters['tablePrefix'] . self::TABLE_NAME;
         $this->tableSeoIdent = $parameters['tablePrefix'] . self::TABLE_NAME_IDENT;
 
+        $this->connection = $connection;
+        $this->locale = $locale;
+        $this->cache = new Cache($storage, 'Seo-Seo');
+        $this->application = $application;
+
         $this->enabled = boolval($parameters['enabled']);
 
-        $this->idLocale = $locale->getIdDefault();
+//        $this->idLocale = $locale->getIdDefault();
 
         $this->loadInternalData();
     }
@@ -117,16 +118,29 @@ class Seo extends Control
 
     private function loadInternalData()
     {
-        $this->values = [];
+        $cacheKey = 'loadInternalData' . $this->locale->getId();
+        $this->values = $this->cache->load($cacheKey);
+        if ($this->values === null) {
+            $this->values = [];
 //FIXME nacitat rovnou do jednoho pole!
-        $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, s.id_ident, s.id_item, s.title, s.description')
-            ->from($this->tableSeoIdent)->as('si')
-            ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->idLocale]);
+            $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, ' .
+                'CONCAT(si.ident, "-", si.presenter, "-", si.action) assoc, ' .
+                's.id_ident, s.id_item, s.title, s.description')
+                ->from($this->tableSeoIdent)->as('si')
+                ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->locale->getId()])
+                ->fetchAssoc('assoc');
 
+            try {
+                $this->cache->save($cacheKey, $this->values, [
+                    Cache::TAGS => ['loadData'],
+                ]);
+            } catch (\Throwable $e) {
+            }
+        }
         echo "</title></head>";
         $this->values->test();
 
-        dump($this->idLocale, $this->values);
+        dump($this->values);
     }
 
 
