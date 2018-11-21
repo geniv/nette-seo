@@ -96,6 +96,8 @@ class Seo extends Control
 
     public function renderTitle(string $identification = null, string $default = null)
     {
+        $presenter = $this->application->getPresenter();
+        dump($identification, $this->values,$presenter);
     }
 
 
@@ -116,18 +118,23 @@ class Seo extends Control
     }
 
 
+    /**
+     * Load internal data.
+     *
+     * @internal
+     */
     private function loadInternalData()
     {
-        $cacheKey = 'loadInternalData' . $this->locale->getId();
+        $idLocale = $this->locale->getId();
+        $cacheKey = 'loadInternalData' . $idLocale;
         $this->values = $this->cache->load($cacheKey);
         if ($this->values === null) {
-            $this->values = [];
-//FIXME nacitat rovnou do jednoho pole!
             $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, ' .
                 'CONCAT(IFNULL(si.ident, ""), "-", IFNULL(si.presenter, ""), "-", IFNULL(si.action, "")) assoc, ' .
                 's.id_ident, s.id_item, s.title, s.description')
                 ->from($this->tableSeoIdent)->as('si')
-                ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->locale->getId()]);
+                ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $idLocale])
+                ->fetchAssoc('assoc');
 
             try {
                 $this->cache->save($cacheKey, $this->values, [
@@ -136,10 +143,6 @@ class Seo extends Control
             } catch (\Throwable $e) {
             }
         }
-        echo "</title></head>";
-        $this->values->test();
-
-        dump($this->values->fetchAll());
     }
 
 
