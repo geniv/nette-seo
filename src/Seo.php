@@ -37,8 +37,6 @@ class Seo extends Control
     /** @var bool */
     private $autoCreate = true, $enabled = true;
 
-//    /** @var int */
-//    private $idLocale;
     /** @var array */
     private $values = [];
 
@@ -65,8 +63,6 @@ class Seo extends Control
 
         $this->enabled = boolval($parameters['enabled']);
 
-//        $this->idLocale = $locale->getIdDefault();
-
         $this->loadInternalData();
     }
 
@@ -82,39 +78,103 @@ class Seo extends Control
     }
 
 
+    /**
+     * Get item.
+     *
+     * @internal
+     * @param string|null $identification
+     * @return array
+     */
+    private function getItem(string $identification = null): array
+    {
+        if ($identification) {
+            return (array) $this->values[$identification . '--'] ?? [];
+        } else {
+            $presenter = $this->application->getPresenter();
+            $presenterName = $presenter->getName();
+            $presenterAction = $presenter->action;
+            return (array) $this->values['-' . $presenterName . '-' . $presenterAction] ?? [];
+        }
+    }
+
+
+    /**
+     * Is title.
+     *
+     * @param string|null $identification
+     * @return bool
+     */
     public function isTitle(string $identification = null): bool
     {
-        return false;
+        $item = $this->getItem($identification);
+        return (bool) $item['title'];
     }
 
 
-    public function getTitle(string $identification = null, string $default = null): string
-    {
-        return '';
-    }
-
-
-    public function renderTitle(string $identification = null, string $default = null)
-    {
-        $presenter = $this->application->getPresenter();
-        dump($identification, $this->values,$presenter);
-    }
-
-
+    /**
+     * Is description.
+     *
+     * @param string|null $identification
+     * @return bool
+     */
     public function isDescription(string $identification = null): bool
     {
-        return false;
+        $item = $this->getItem($identification);
+        return (bool) $item['description'];
     }
 
 
+    /**
+     * Get title.
+     *
+     * @param string|null $identification
+     * @param string|null $default
+     * @return string
+     */
+    public function getTitle(string $identification = null, string $default = null): string
+    {
+        $item = $this->getItem($identification);
+        return $item['title'] ?: $default;
+    }
+
+
+    /**
+     * Get description.
+     *
+     * @param string|null $identification
+     * @param string|null $default
+     * @return string
+     */
     public function getDescription(string $identification = null, string $default = null): string
     {
-        return '';
+        $item = $this->getItem($identification);
+        return $item['description'] ?: $default;
     }
 
 
+    /**
+     * Render title.
+     *
+     * @param string|null $identification
+     * @param string|null $default
+     */
+    public function renderTitle(string $identification = null, string $default = null)
+    {
+        $item = $this->getItem($identification);
+        echo $item['title'] ?: $default;
+    }
+
+
+    /**
+     * Render description.
+     *
+     * @param string|null $identification
+     * @param string|null $default
+     */
     public function renderDescription(string $identification = null, string $default = null)
     {
+        $item = $this->getItem($identification);
+        echo $item['description'] ?: $default;
     }
 
 
