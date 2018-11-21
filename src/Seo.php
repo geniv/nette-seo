@@ -124,11 +124,10 @@ class Seo extends Control
             $this->values = [];
 //FIXME nacitat rovnou do jednoho pole!
             $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, ' .
-                'CONCAT(si.ident, "-", si.presenter, "-", si.action) assoc, ' .
+                'CONCAT(IFNULL(si.ident, ""), "-", IFNULL(si.presenter, ""), "-", IFNULL(si.action, "")) assoc, ' .
                 's.id_ident, s.id_item, s.title, s.description')
                 ->from($this->tableSeoIdent)->as('si')
-                ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->locale->getId()])
-                ->fetchAssoc('assoc');
+                ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $this->locale->getId()]);
 
             try {
                 $this->cache->save($cacheKey, $this->values, [
@@ -140,7 +139,7 @@ class Seo extends Control
         echo "</title></head>";
         $this->values->test();
 
-        dump($this->values);
+        dump($this->values->fetchAll());
     }
 
 
