@@ -138,11 +138,11 @@ class Seo extends Control
      * Get title.
      *
      * @param string|null $identification
-     * @param string|null $default
+     * @param string      $default
      * @return string
      * @throws \Dibi\Exception
      */
-    public function getTitle(string $identification = null, string $default = null): string
+    public function getTitle(string $identification = null, string $default = ''): string
     {
         $item = $this->getItem($identification);
         return $item['title'] ?? $default;
@@ -153,11 +153,11 @@ class Seo extends Control
      * Get description.
      *
      * @param string|null $identification
-     * @param string|null $default
+     * @param string      $default
      * @return string
      * @throws \Dibi\Exception
      */
-    public function getDescription(string $identification = null, string $default = null): string
+    public function getDescription(string $identification = null, string $default = ''): string
     {
         $item = $this->getItem($identification);
         return $item['description'] ?? $default;
@@ -168,10 +168,10 @@ class Seo extends Control
      * Render title.
      *
      * @param string|null $identification
-     * @param string|null $default
+     * @param string      $default
      * @throws \Dibi\Exception
      */
-    public function renderTitle(string $identification = null, string $default = null)
+    public function renderTitle(string $identification = null, string $default = '')
     {
         echo $this->getTitle($identification, $default);
     }
@@ -181,10 +181,10 @@ class Seo extends Control
      * Render description.
      *
      * @param string|null $identification
-     * @param string|null $default
+     * @param string      $default
      * @throws \Dibi\Exception
      */
-    public function renderDescription(string $identification = null, string $default = null)
+    public function renderDescription(string $identification = null, string $default = '')
     {
         echo $this->getDescription($identification, $default);
     }
