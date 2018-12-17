@@ -17,7 +17,7 @@ use Nette\Caching\IStorage;
  * @author  geniv
  * @package Seo
  */
-class Seo extends Control
+class Seo extends Control implements ISeo
 {
     // define constant table names
     const
