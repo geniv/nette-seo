@@ -13,6 +13,14 @@ interface ISeo
 {
 
     /**
+     * Set auto create.
+     *
+     * @param bool $status
+     */
+    public function setAutoCreate(bool $status);
+
+
+    /**
      * Is title.
      *
      * @param string|null $identification
