@@ -42,7 +42,7 @@ extensions:
 
 usage:
 ```php
-protected function createComponentSeo(Seo $seo)
+protected function createComponentSeo(ISeo $seo): ISeo
 {
     //$seo->setAutoCreate(true);
     return $seo;
