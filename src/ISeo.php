@@ -3,8 +3,15 @@
 namespace Seo;
 
 
+/**
+ * Interface ISeo
+ *
+ * @author  geniv
+ * @package Seo
+ */
 interface ISeo
 {
+
     /**
      * Is title.
      *
@@ -13,6 +20,7 @@ interface ISeo
      * @throws \Dibi\Exception
      */
     public function isTitle(string $identification = null): bool;
+
 
     /**
      * Is description.
@@ -23,6 +31,7 @@ interface ISeo
      */
     public function isDescription(string $identification = null): bool;
 
+
     /**
      * Get title.
      *
@@ -32,6 +41,7 @@ interface ISeo
      * @throws \Dibi\Exception
      */
     public function getTitle(string $identification = null, string $default = ''): string;
+
 
     /**
      * Get description.
