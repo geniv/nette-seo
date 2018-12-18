@@ -11,7 +11,7 @@ $ composer require geniv/nette-seo
 ```
 or
 ```json
-"geniv/nette-seo": ">=1.0.0"
+"geniv/nette-seo": "^2.0"
 ```
 
 require:
@@ -24,6 +24,8 @@ require:
 
 Include in application
 ----------------------
+
+Storage: (dibi + cache `_Seo-Seo`)
 
 neon configure:
 ```neon
