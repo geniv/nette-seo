@@ -91,6 +91,10 @@ class Seo extends Control implements ISeo
         $presenterName = $presenter->getName();
         $presenterAction = $presenter->action;
 
+        if (!$this->enabled) {
+            return [];
+        }
+
         if ($identification) {
             $index = $identification . '--';
         } else {
@@ -201,11 +205,11 @@ class Seo extends Control implements ISeo
         $this->values = $this->cache->load($cacheKey);
         if ($this->values === null) {
             $this->values = $this->connection->select('s.id, si.ident, si.presenter, si.action, ' .
-                'CONCAT(IFNULL(si.ident, ""), "-", IFNULL(si.presenter, ""), "-", IFNULL(si.action, "")) assoc, ' .
+                'CONCAT(IFNULL(si.ident,""), "-", IFNULL(si.presenter,""), "-", IFNULL(si.action,"")) uid, ' .
                 's.id_ident, s.id_item, s.title, s.description')
                 ->from($this->tableSeoIdent)->as('si')
                 ->join($this->tableSeo)->as('s')->on('s.id_ident=si.id')->and(['s.id_locale' => $idLocale])
-                ->fetchAssoc('assoc');
+                ->fetchAssoc('uid');
 
             try {
                 $this->cache->save($cacheKey, $this->values, [
@@ -259,7 +263,7 @@ class Seo extends Control implements ISeo
 
         // insert null locale item
         if (!$item && $this->autoCreate) {
-            $this->connection->insert($this->tableSeo, $val)->execute();
+            $this->connection->insert($this->tableSeo, $val)->execute(Dibi::IDENTIFIER);
         }
 
         $this->cache->clean([Cache::TAGS => ['loadData']]);
