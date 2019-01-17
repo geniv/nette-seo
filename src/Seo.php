@@ -87,13 +87,13 @@ class Seo extends Control implements ISeo
      */
     private function getItem(string $identification = null): array
     {
-        $presenter = $this->application->getPresenter();
-        $presenterName = $presenter->getName();
-        $presenterAction = $presenter->action;
-
         if (!$this->enabled) {
             return [];
         }
+
+        $presenter = $this->application->getPresenter();
+        $presenterName = $presenter->getName();
+        $presenterAction = $presenter->action;
 
         if ($identification) {
             $index = $identification . '--';
@@ -200,6 +200,11 @@ class Seo extends Control implements ISeo
      */
     private function loadInternalData()
     {
+        // skip load data
+        if (!$this->enabled) {
+            return;
+        }
+
         $idLocale = $this->locale->getId();
         $cacheKey = 'loadInternalData' . $idLocale;
         $this->values = $this->cache->load($cacheKey);

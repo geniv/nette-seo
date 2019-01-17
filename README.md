@@ -27,6 +27,8 @@ Include in application
 
 Storage: (dibi + cache `_Seo-Seo`)
 
+`enabled: false` => stop loading from database and skip load data
+
 neon configure:
 ```neon
 # seo
