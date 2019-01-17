@@ -91,6 +91,10 @@ class Seo extends Control implements ISeo
         $presenterName = $presenter->getName();
         $presenterAction = $presenter->action;
 
+        if (!$this->enabled) {
+            return [];
+        }
+
         if ($identification) {
             $index = $identification . '--';
         } else {
